@@ -17,6 +17,27 @@ import umi_tools.whitelist_methods as whitelist_methods
 
 sys.setrecursionlimit(10000)
 
+bid_dict = {
+    'A': 0,
+    'a': 0,
+    'C': 1,
+    'c': 1,
+    'G': 2,
+    'g': 2,
+    'T': 3,
+    't': 3,
+    'N': 4,
+    'n': 4,
+}
+
+
+def _barcode_to_binary(s):
+    bid = 0
+    for c in s[::-1]:
+        bid = bid << 3
+        bid = bid + bid_dict[c]
+    return bid
+
 
 def breadth_first_search(node, adj_list):
     searched = set()
@@ -148,8 +169,7 @@ class UMIClusterer:
         if len(cluster) == 1:
             return list(cluster)
 
-        sorted_nodes = sorted(cluster, key=lambda x: counts[x],
-                              reverse=True)
+        sorted_nodes = sorted(cluster, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8"))))
 
         for i in range(len(sorted_nodes) - 1):
             if len(remove_umis(adj_list, cluster, sorted_nodes[:i+1])) == 0:
@@ -224,7 +244,7 @@ class UMIClusterer:
         found = set()
         components = list()
 
-        for node in sorted(graph, key=lambda x: counts[x], reverse=True):
+        for node in sorted(graph, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8")))):
             if node not in found:
                 # component = self.search(node, graph)
                 component = list(breadth_first_search(node, graph))
@@ -258,8 +278,7 @@ class UMIClusterer:
                 groups.append(list(cluster))
                 observed.update(cluster)
             else:
-                cluster = sorted(cluster, key=lambda x: counts[x],
-                                 reverse=True)
+                cluster = sorted(cluster, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8"))))
                 # need to remove any node which has already been observed
                 temp_cluster = []
                 for node in cluster:
@@ -503,7 +522,7 @@ class CellClusterer:
         found = set()
         components = list()
 
-        for node in sorted(graph, key=lambda x: counts[x], reverse=True):
+        for node in sorted(graph, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8")))):
             if node not in found:
                 # component = self.search(node, graph)
                 component = breadth_first_search(node, graph)
