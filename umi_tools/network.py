@@ -318,8 +318,7 @@ class UMIClusterer:
 
         groups = []
         for cluster in clusters:
-            groups.append(sorted(cluster, key=lambda x: counts[x],
-                                 reverse=True))
+            groups.append(sorted(cluster, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8")))))
 
         return groups
 
@@ -477,8 +476,7 @@ class CellClusterer:
         if len(cluster) == 1:
             return list(cluster)
 
-        sorted_nodes = sorted(cluster, key=lambda x: counts[x],
-                              reverse=True)
+        sorted_nodes = sorted(cluster, key=lambda x: (-counts[x], _barcode_to_binary(x.decode("utf-8"))))
 
         for i in range(len(sorted_nodes) - 1):
             if len(remove_umis(adj_list, cluster, sorted_nodes[:i+1])) == 0:
